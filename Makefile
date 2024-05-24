@@ -1,18 +1,19 @@
 # Variables
 OCAMLC = ocamlc
 INCLUDES = -I lib
-SRCS = lib/a.ml lib/b.ml lib/lib.ml bin/main.ml
+SRCS = lib/a.ml lib/b.ml lib/readfile.ml lib/lib.ml bin/main.ml
 OBJS = $(SRCS:.ml=.cmo)
 INTERFACES = $(OBJS:.cmo=.cmi)
 NAME = ft_ality
+PACKAGES = sdl2
 
 all: $(NAME)
 
 %.cmo: %.ml
-	$(OCAMLC) -c $(INCLUDES) $<
+	ocamlfind $(OCAMLC) -c -package $(PACKAGES) $(INCLUDES) $<
 
 $(NAME): $(OBJS)
-	$(OCAMLC) $(INCLUDES) -o $@ $^
+	ocamlfind $(OCAMLC) $(INCLUDES) -o $@ -linkpkg -package $(PACKAGES) $^ 
 
 clean:
 	rm -f $(INTERFACES) $(OBJS)

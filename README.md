@@ -34,3 +34,4 @@ ocamlc -c -I lib lib/a.ml lib/b.ml lib/lib.ml bin/main.ml
 modify:
 - lib/dune
 - lib/lib.ml
+- Makefile

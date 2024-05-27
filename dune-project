@@ -7,7 +7,7 @@
  (description "\| This is my first attempt at creating
               "\| a project with Dune.
  )
- (depends sdl2
+ (depends tsdl
 )
 (allow_empty)
 

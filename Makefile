@@ -5,7 +5,7 @@ SRCS = lib/a.ml lib/b.ml lib/readfile.ml lib/lib.ml bin/main.ml
 OBJS = $(SRCS:.ml=.cmo)
 INTERFACES = $(OBJS:.cmo=.cmi)
 NAME = ft_ality
-PACKAGES = sdl2
+PACKAGES = tsdl
 
 all: $(NAME)
 
@@ -13,7 +13,7 @@ all: $(NAME)
 	ocamlfind $(OCAMLC) -c -package $(PACKAGES) $(INCLUDES) $<
 
 $(NAME): $(OBJS)
-	ocamlfind $(OCAMLC) $(INCLUDES) -o $@ -linkpkg -package $(PACKAGES) $^ 
+	ocamlfind $(OCAMLC) $(INCLUDES) -o $@ -linkpkg -thread -package $(PACKAGES) $^ 
 
 clean:
 	rm -f $(INTERFACES) $(OBJS)

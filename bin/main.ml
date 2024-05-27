@@ -1,19 +1,14 @@
-let other () = 
-  print_endline Lib.B.greet;
 
-  let file = "moves" in
 
-  let fd = open_in file in
-    let line = Lib.Readfile.get_next_line fd in 
-      List.iter (Printf.printf "%s") line;
-      flush stdout
+let () = 
+  match Tsdl.Sdl.init Tsdl.Sdl.Init.video with
+  | Error (`Msg _) -> Tsdl.Sdl.log "no"
+  | Ok () -> 
+    match Tsdl.Sdl.create_window ~w:800 ~h:600 "Hello" Tsdl.Sdl.Window.windowed with
+    | Error (`Msg _) -> Tsdl.Sdl.log "nooo"
+    | Ok window -> 
+      Tsdl.Sdl.delay 3000l;
+      Tsdl.Sdl.destroy_window window;
 
-let window () = 
-  try
-    Sdl.init[`VIDEO];
-    ignore (Sdl.Render.create_window_and_renderer ~width:0 ~height:0 ~flags:[Sdlwindow.Borderless]);
-    at_exit Sdl.quit
-  with
-   | e -> raise e
+      Tsdl.Sdl.quit()
 
-let () = window ()

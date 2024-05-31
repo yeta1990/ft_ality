@@ -10,7 +10,7 @@ PACKAGES = tsdl
 all: $(NAME)
 
 %.cmo: %.ml
-	ocamlfind $(OCAMLC) -c -package $(PACKAGES) $(INCLUDES) $<
+	ocamlfind $(OCAMLC) -c -package $(PACKAGES) -thread -linkpkg  $(INCLUDES) $<
 
 $(NAME): $(OBJS)
 	ocamlfind $(OCAMLC) $(INCLUDES) -o $@ -linkpkg -thread -package $(PACKAGES) $^ 

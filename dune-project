@@ -7,7 +7,7 @@
  (description "\| This is my first attempt at creating
               "\| a project with Dune.
  )
- (depends ocamlsdl tsdl
+ (depends sdl
 )
 (allow_empty)
 

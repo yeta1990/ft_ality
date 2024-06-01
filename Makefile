@@ -5,7 +5,7 @@ SRCS = lib/a.ml lib/b.ml lib/readfile.ml lib/lib.ml bin/main.ml
 OBJS = $(SRCS:.ml=.cmo)
 INTERFACES = $(OBJS:.cmo=.cmi)
 NAME = ft_ality
-PACKAGES = tsdl
+PACKAGES = sdl
 
 all: $(NAME)
 

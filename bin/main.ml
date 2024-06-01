@@ -1,16 +1,18 @@
-let printf = Format.printf
 
-let rec poll_keys () =
-  let open Sdlevent in
-  if has_event () then begin
-    match wait_event () with
-    | KEYDOWN {keysym=key} -> printf "keydown '%c'@." (Sdlkey.char_of_key key)
-    | KEYUP {keysym=key} -> printf "keyup '%c'@." (Sdlkey.char_of_key key)
-    | _ -> Sdltimer.delay 5
-  end;
-  poll_keys ()
+let rec wait_for_escape () =
+    match Sdlevent.wait_event () with
+    | KEYDOWN {Sdlevent.keysym=Sdlkey.KEY_ESCAPE} ->
+        print_endline "You pressed escape! The fun is over now."
+    | event ->
+        print_endline (Sdlevent.string_of_event event);
+        wait_for_escape ()
 
-let () =
+
+
+let main () =
   Sdl.init [`VIDEO];
-  (* Sdlkey.enable_key_repeat (); *)
-  poll_keys ()
+  at_exit Sdl.quit;
+  
+  wait_for_escape ()
+
+let _ = main ()

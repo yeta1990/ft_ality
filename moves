@@ -1,2 +1,5 @@
-move1 dos tres
-move2
+P = Punch
+Down = Down
+Up = Up
+
+PDown = Combo P + Down 

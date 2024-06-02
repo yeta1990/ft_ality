@@ -1,6 +1,13 @@
 (* Importa la biblioteca TSDL *)
 open Tsdl
 
+let print_pressed_keys lst = List.iter print_string lst; print_newline (); flush stdout
+
+let match_combo pressed_keys = match pressed_keys with
+| ["A"] -> print_pressed_keys pressed_keys; pressed_keys
+| ["A"; "B"] -> print_pressed_keys pressed_keys; pressed_keys
+| _ -> print_string "Nothing to do with keys "; print_pressed_keys pressed_keys; []
+
 (* Función principal *)
 let () =
   (* Inicializa SDL *)
@@ -15,25 +22,24 @@ let () =
     | Ok win -> win
   in
 
-  (* Bucle de eventos *)
-  let rec event_loop () =
-    (* Crear un evento *)
+  let rec event_loop (pressed_keys) =
     let event = Sdl.Event.create () in
-    (* Esperar a un evento *)
     match Sdl.wait_event (Some event) with
     | Error (`Msg e) -> Sdl.log "Error esperando un evento: %s" e; Sdl.destroy_window window; Sdl.quit ()
     | Ok () ->
-      (* Obtener el tipo de evento *)
       let event_type = Sdl.Event.get event Sdl.Event.typ in
       match Sdl.Event.enum event_type with
       | `Quit -> Sdl.log "Evento de salida recibido, cerrando."; Sdl.destroy_window window; Sdl.quit ()
       | `Key_down -> 
-        (* Obtener la tecla presionada *)
         let keycode = Sdl.Event.get event Sdl.Event.keyboard_keycode in
         let keyname = Sdl.get_key_name keycode in
+        (*
         Printf.printf "Tecla presionada: %s\n%!" keyname;
-        event_loop ()
-      | _ -> event_loop ()  (* Para otros eventos, continúa el bucle *)
+        Printf.printf "Tecla presionada: %d\n%!" keycode;
+        *)
+        let pressed_keys2 = match_combo (pressed_keys @ [keyname]) in 
+          event_loop (pressed_keys2)
+      | _ -> event_loop (pressed_keys)  (* Para otros eventos, continúa el bucle *)
   in
-  event_loop ();
+  event_loop ([]);
   Sdl.quit ()

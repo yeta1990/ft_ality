@@ -1,5 +1,4 @@
 P = Punch
 Down = Down
 Up = Up
-
-PDown = Combo P + Down 
+P+Down = Combo loko

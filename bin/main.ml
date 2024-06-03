@@ -37,49 +37,32 @@ let grammar_file_to_list file_name =
       []
     in 
     read_lines()
-  
-    (*
-let rec last = function 
-  | [] -> [] 
-  | [ x ] -> [x]
-  | _ :: t -> last t;;
-*)
+
 let print_pressed_keys lst = 
     List.iter print_string lst; print_newline (); flush stdout
-
-let rec find_key grammar current_state last_key = 
+    
+let rec get_description_by_key grammar current_state = 
   match grammar with
   | (key, description) :: tail -> 
-      if key = (current_state @ [last_key]) then (print_string description; flush stdout;) else find_key tail current_state last_key
-  | _ -> () 
+      if key = current_state then (true, description) else get_description_by_key tail current_state 
+  | [] -> 
+      (false, "") 
 
   
-let rec is_prefix prefix lst =
-  match prefix, lst with
-  | [], _ -> true
-  | _, [] -> false
-  | x::xs, y::ys -> x = y && is_prefix xs ys
 
-let is_final_state current_state possible_states =
-  let rec aux current_state possible_states =
-    match possible_states with
-    | [] -> true
-    | (state, _) :: tail ->
-        if is_prefix current_state state && List.length current_state < List.length state then
-          false
-        else
-          aux current_state tail
-  in
-  aux current_state possible_states
-(*
-let rec match_combo grammar pressed_keys = match pressed_keys with 
-| ["A"] -> print_pressed_keys pressed_keys; pressed_keys
-| ["A"; "B"] -> print_pressed_keys pressed_keys; pressed_keys
-| _ -> print_string "Nothing to do with keys "; print_pressed_keys pressed_keys; if List.length pressed_keys > 1 then match_combo (grammar pressed_keys) else []
-*)
+let update_state current_state pressed_key states =
+  let key_exists key =
+    List.exists (fun (k, _) -> k = key) states in
+  if key_exists (current_state @ [pressed_key]) then
+    current_state @ [pressed_key]
+  else if List.length current_state = 0 then []
+  else if key_exists ([List.hd (List.rev current_state)] @ [pressed_key]) then
+    (List.rev (List.tl (List.rev current_state))) @ [pressed_key]
+  else
+    [pressed_key]
+
+
 let () =
-  
-
   match Sdl.init Sdl.Init.video with
   | Error (`Msg e) -> Sdl.log "No se pudo inicializar SDL: %s" e; exit 1
   | Ok () -> ();
@@ -106,12 +89,10 @@ let () =
           let keyname = Sdl.get_key_name keycode in
           if keyname = "Escape" then (Sdl.destroy_window window; Sdl.quit(); exit 0); (* remove before the evaluation*)
 
-          find_key grammar [] keyname;
-          if List.length pressed_keys > 0 then find_key grammar pressed_keys keyname;
-          if is_final_state (pressed_keys @ [keyname]) grammar = true then 
-            event_loop ([])
-          else
-            event_loop(pressed_keys @ [keyname])
+          let current_state = update_state pressed_keys keyname grammar in 
+            let (found, description) = get_description_by_key grammar current_state in  
+              if found then (print_string description; print_string "\n";flush stdout);
+              event_loop (current_state)
         | _ -> event_loop (pressed_keys)  
     in
     event_loop ([]);

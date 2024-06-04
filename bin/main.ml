@@ -5,12 +5,11 @@ let split_keys_and_descriptions s =
     let len = String.length delimiter in
       try
         let index = String.index_from s 0 '=' in
-        Printf.printf ("ee %d\n") index;
         let keys_raw = String.sub s 0 (index - 1) in
         let key_description = String.sub s (index + len - 1) (String.length s - index - len + 1) in
         let keys = String.split_on_char '+' keys_raw in 
           (keys, String.trim key_description)
-      with Not_found -> exit 1 (*([], "")*)
+      with Not_found -> Sdl.log "Bad format provided in file. \"key = value\" is required, i.e.: P = Punch or P + K = Combo!!!"; exit 1
   
 let rec print_keys_list = function
 | [] -> ()

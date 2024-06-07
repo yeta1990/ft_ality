@@ -46,21 +46,65 @@ let grammar_file_to_list file_name =
 let print_pressed_keys lst = 
     List.iter print_string lst; print_newline (); flush stdout
    *)  
+
+let rec is_prefix prefix list =
+  match prefix, list with
+  | [], _ -> true
+  | _, [] -> false
+  | x::xs, y::ys -> x = y && is_prefix xs ys
+
+let key_exists key states =
+  List.exists (fun (state_key, _) -> is_prefix key state_key) states
+
 let rec get_description_by_key grammar current_state = 
   match grammar with
   | (key, description) :: tail -> 
       if key = current_state then (true, description) else get_description_by_key tail current_state 
   | [] -> 
       (false, "") 
+      (*if key_exists current_state grammar then (print_string "true"; flush stdout; (true, "key")) else (false, "") *)
+
+let rec is_sublist sub lst =
+  match sub, lst with
+ | [], _ -> true
+ | _, [] -> false
+ | x::xs, y::ys -> 
+    (x = y && is_sublist xs ys) || is_sublist sub ys
+  
+
+(*
+avoids defining a state that is at the same time a substate/subset of another state. i.e:
+  P+K = Power Strike
+  W+P+K = Ultra combo
+are incompatible
+*)
+
+let rec validate_substates states =
+  match states with
+  | [] -> true
+  | ([_], _)::rest -> validate_substates rest
+  | (s1, _)::rest ->
+    let has_sublist =
+      List.exists (fun (s2, _) -> 
+        if ((s1 <> s2) && (is_sublist s1 s2 || is_sublist s2 s1)) then
+          (print_string "Defined substates of other states are not allowed: "; print_keys_list s1; print_string " has coincidences with "; print_keys_list s2; print_string "\n";
+          true)
+        else false
+      ) rest
+      in
+        if has_sublist then false else validate_substates rest
+
+
+
 
 let update_state current_state pressed_key states =
-  let key_exists key =
-    List.exists (fun (k, _) -> k = key) states in
-  if key_exists (current_state @ [pressed_key]) then
+  if key_exists (current_state @ [pressed_key]) states then
     current_state @ [pressed_key]
+  else if key_exists current_state states then [pressed_key]
   else if List.length current_state = 0 then []
-  else if key_exists ([List.hd (List.rev current_state)] @ [pressed_key]) then
-    (List.rev (List.tl (List.rev current_state))) @ [pressed_key]
+  else if key_exists ([List.hd (List.rev current_state)] @ [pressed_key]) states then
+    [(List.hd (List.rev current_state))] @ [pressed_key]
+
   else
     [pressed_key]
 
@@ -80,6 +124,7 @@ let () =
 
   let grammar = grammar_file_to_list "moves" in
     ignore(validate_grammar_keys grammar);
+    if validate_substates grammar = false then exit 1;
   (*Printf.printf "%d\n" (Sdl.get_key_from_name "W_"); flush stdout;*)
   
     print_string "[ft_ality]\n";
@@ -107,7 +152,9 @@ let () =
           if keyname = "Escape" then (Sdl.destroy_window window; Sdl.quit(); exit 0); (* remove before the evaluation*)
           let current_state = update_state pressed_keys keyname grammar in 
             let (found, description) = get_description_by_key grammar current_state in  
-              if found then (print_current_state current_state; print_string description; print_string "\n\n";flush stdout) else print_string ("[" ^ keyname ^ "]: key not found, state reset\n"); flush stdout ;
+              if found then (print_current_state current_state; print_string description; print_string "\n\n";flush stdout)
+              else if key_exists current_state grammar then print_current_state current_state
+              else print_string ("[" ^ keyname ^ "]: key not found, state reset\n"); flush stdout ;
               event_loop (current_state)
         | _ -> event_loop (pressed_keys)  
     in

@@ -1,7 +1,62 @@
 module Sdl = Tsdl.Sdl
 
-let hello = "Hello from A"
+let rec print_keys_list = function
+| [] -> ()
+| [last] -> print_string last
+| first :: rest -> print_string first; print_string " + "; print_keys_list rest;
+flush stdout
 
+let validate_key_combination grammar = 
+  let (keys,___) = grammar in 
+  if List.for_all (fun key -> Sdl.get_key_from_name key <> 0) keys
+    then `Ok else `Error
+
+let validate_grammar_keys grammar = 
+    let results  = List.map validate_key_combination grammar in
+      if List.for_all (fun res -> res == `Ok) results then true else (Sdl.log "Bad key provided in file"; false)
+
+let rec is_substate sub lst =
+  match sub, lst with
+ | [], _ -> true
+ | _, [] -> false
+ | x::xs, y::ys -> 
+    (x = y && is_substate xs ys) || is_substate sub ys
+
+let rec validate_substates states =
+  match states with
+  | [] -> true
+  | ([_], _)::rest -> validate_substates rest (*not checking single keys*)
+  | (s1, _)::rest ->
+    let has_sublist =
+      List.exists (fun (s2, _) -> 
+        if ((s1 <> s2) && (is_substate s1 s2 || is_substate s2 s1)) then
+          (print_string "Defined substates of other states are not allowed: "; print_keys_list s1; print_string " has coincidences with "; print_keys_list s2; print_string "\n";
+          true)
+        else false
+      ) rest
+      in
+        if has_sublist then false else validate_substates rest
+
+let validate_grammar grammar = 
+  if not (validate_grammar_keys grammar) || not (validate_substates grammar) then exit 1
+
+let rec is_prefix_of_other_list prefix list =
+  match prefix, list with
+  | [], _ -> true
+  | _, [] -> false
+  | x::xs, y::ys -> x = y && is_prefix_of_other_list xs ys
+
+let key_exists key states =
+  List.exists (fun (state_key, _) -> is_prefix_of_other_list key state_key) states
+
+
+
+(*
+avoids defining a state that is at the same time a substate/subset of another state. i.e:
+  P+K = Power Strike
+  W+P+K = Ultra combo
+are incompatible
+*)
 let rec get_description_by_key grammar current_state = 
   match grammar with
   | (key, description) :: tail -> 
@@ -9,11 +64,6 @@ let rec get_description_by_key grammar current_state =
   | [] -> 
       (false, "") 
 
-let rec print_keys_list = function
-| [] -> ()
-| [last] -> print_string last
-| first :: rest -> print_string first; print_string " + "; print_keys_list rest;
-flush stdout
 
 let print_current_state lst = 
   print_string "["; print_keys_list lst; print_string "]\n"

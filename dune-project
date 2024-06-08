@@ -3,9 +3,9 @@
 
 (package
  (name ft_ality)
- (synopsis "My first Dune package!")
- (description "\| This is my first attempt at creating
-              "\| a project with Dune.
+ (synopsis "ft_ality!")
+ (description "\| The most boring 42 outer core project.
+              "\| Try it and you'll hate Ocaml for sure 
  )
  (depends tsdl
 )

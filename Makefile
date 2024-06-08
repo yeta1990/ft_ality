@@ -1,7 +1,7 @@
 # Variables
 OCAMLC = ocamlc
 INCLUDES = -I lib
-SRCS = lib/grammar.ml lib/b.ml lib/readfile.ml lib/lib.ml bin/main.ml
+SRCS = lib/grammar.ml lib/state.ml lib/lib.ml bin/main.ml
 OBJS = $(SRCS:.ml=.cmo)
 INTERFACES = $(OBJS:.cmo=.cmi)
 NAME = ft_ality
@@ -18,11 +18,9 @@ $(NAME): $(OBJS)
 clean:
 	rm -f $(INTERFACES) $(OBJS)
 
-# Limpiar y borrar el ejecutable
 fclean: clean
 	rm -f $(NAME)
 
-# Regla para recompilar todo
 re: fclean all
 
 .PHONY: all clean fclean re

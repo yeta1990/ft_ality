@@ -5,7 +5,6 @@ let rec print_keys_list = function
 | [last] -> print_string last
 | first :: rest -> print_string first; print_string " + "; print_keys_list rest;
 flush stdout
-
 let validate_key_combination grammar = 
   let (keys,___) = grammar in 
   if List.for_all (fun key -> Sdl.get_key_from_name key <> 0) keys

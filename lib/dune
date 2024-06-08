@@ -1,5 +1,5 @@
 (library
  (name lib)
- (modules lib grammar b readfile)
+ (modules lib grammar state)
  (libraries tsdl)
  )

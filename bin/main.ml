@@ -27,10 +27,14 @@ let print_key_and_description lst =
     print_string keys_description; 
     print_string "\n"
 
-    (*Printf.printf "%d\n" (Sdl.get_key_from_name "W"); flush stdout;*)
-
 let grammar_file_to_list file_name = 
-  let ic = open_in file_name in
+  let ic =
+    try
+      open_in file_name
+    with Sys_error msg ->
+      Printf.printf "Error opening file: %s\n" msg;
+      exit 1
+  in
   let rec read_lines() =
     try
       let line = input_line ic in 
@@ -107,19 +111,37 @@ let validate_key_combination grammar =
   if List.for_all (fun key -> Sdl.get_key_from_name key <> 0) keys
     then `Ok else `Error
 
+
 let validate_grammar_keys grammar = 
     let results  = List.map validate_key_combination grammar in
-      if List.for_all (fun res -> res == `Ok) results then () else (Sdl.log "Bad key provided in file"; exit 1)
+      if List.for_all (fun res -> res == `Ok) results then true else (Sdl.log "Bad key provided in file"; false)
+
+      
+let get_grammar_filename () =
+  try
+    Sys.argv.(1)
+  with
+  | Invalid_argument _ ->
+    print_string "Usage: ./ft_alit grammar_file\n";
+    exit 1
+  | _ -> print_string "Error\n"; exit 1
+
+let validate_grammar grammar = 
+  if not (validate_grammar_keys grammar) || not (validate_substates grammar) then exit 1
+
+let initialize_sdl () =
+  match Sdl.init Sdl.Init.video with
+  | Error (`Msg e) ->
+    Sdl.log "No se pudo inicializar SDL: %s" e;
+    exit 1
+  | Ok () -> ()
 
 let () =
-  match Sdl.init Sdl.Init.video with
-  | Error (`Msg e) -> Sdl.log "No se pudo inicializar SDL: %s" e; exit 1
-  | Ok () -> ();
+  initialize_sdl ();
 
-  let grammar = grammar_file_to_list "moves" in
-    ignore(validate_grammar_keys grammar);
-    if validate_substates grammar = false then exit 1;
-  (*Printf.printf "%d\n" (Sdl.get_key_from_name "W_"); flush stdout;*)
+  let grammar_filename = get_grammar_filename () in 
+    let grammar = grammar_file_to_list grammar_filename in
+      validate_grammar grammar; 
   
     print_string "[ft_ality]\n";
     print_string "Key -> Name of the movement or combo\n";

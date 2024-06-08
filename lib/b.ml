@@ -1,1 +1,1 @@
-let greet = "holao !Greeting from B and " ^ A.hello
+let greet = "holao !Greeting from B and " ^ Grammar.hello

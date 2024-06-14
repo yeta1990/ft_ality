@@ -1,6 +1,6 @@
 # Variables
 OCAMLC = ocamlc
-INCLUDES = -I lib
+INCLUDES = -I lib -I /home/albgarci/.brew/Cellar/sdl2/2.30.3/lib
 SRCS = lib/grammar.ml lib/state.ml lib/lib.ml bin/main.ml
 OBJS = $(SRCS:.ml=.cmo)
 INTERFACES = $(OBJS:.cmo=.cmi)

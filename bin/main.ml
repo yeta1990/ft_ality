@@ -7,7 +7,7 @@ let get_grammar_filename () =
     Sys.argv.(1)
   with
   | Invalid_argument _ ->
-    print_string "Usage: ./ft_alit grammar_file\n";
+    print_string "Usage: ./ft_ality grammar_file\n";
     exit 1
   | _ -> print_string "Error\n"; exit 1
 

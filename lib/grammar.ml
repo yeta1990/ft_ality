@@ -5,6 +5,11 @@ let rec print_keys_list = function
 | [last] -> print_string last
 | first :: rest -> print_string first; print_string " + "; print_keys_list rest;
 flush stdout
+
+let rec print_descriptions = function
+  | [] -> print_string "\n"; flush stdout
+  | first :: last -> print_string (first ^ "\n"); print_descriptions last
+
 let validate_key_combination grammar = 
   let (keys,___) = grammar in 
   if List.for_all (fun key -> Sdl.get_key_from_name key <> 0) keys
@@ -37,7 +42,7 @@ let rec validate_substates states =
         if has_sublist then false else validate_substates rest
 
 let validate_grammar grammar = 
-  if not (validate_grammar_keys grammar) || not (validate_substates grammar) then exit 1
+  if not (validate_grammar_keys grammar) then exit 1
 
 let rec is_prefix_of_other_list prefix list =
   match prefix, list with
@@ -56,23 +61,22 @@ avoids defining a state that is at the same time a substate/subset of another st
   W+P+K = Ultra combo
 are incompatible
 *)
-let rec get_description_by_key grammar current_state = 
-  match grammar with
-  | (key, description) :: tail -> 
-      if key = current_state then (true, description) else get_description_by_key tail current_state 
-  | [] -> 
-      (false, "") 
+let rec get_description_by_key grammar current_state found_descriptions = 
+  match grammar, found_descriptions with
+  | (key, description) :: tail, _ -> 
+      if key = current_state then get_description_by_key tail current_state (found_descriptions @ [description]) else get_description_by_key tail current_state found_descriptions
+  | [], []  -> 
+      (false, []) 
+  | [], _  -> 
+      (true, found_descriptions) 
 
 
-let print_current_state lst = 
-  print_string "["; print_keys_list lst; print_string "]\n"
+
 
 let print_key_and_description lst = 
     let (keys, keys_description) = lst in 
     print_keys_list keys;
-    print_string " -> ";
-    print_string keys_description; 
-    print_string "\n"
+    print_string (" -> " ^ keys_description ^ "\n")
 
 let split_keys_and_descriptions s =
   let delimiter = " = " in
@@ -90,7 +94,7 @@ let grammar_file_to_list file_name =
     try
       open_in file_name
     with Sys_error msg ->
-      Printf.printf "Error opening file: %s\n" msg;
+      print_string ("Error opening file: " ^ msg ^ "\n");
       exit 1
   in
   let rec read_lines() =

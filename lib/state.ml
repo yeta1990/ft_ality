@@ -8,6 +8,15 @@ let update_state current_state pressed_key states =
   else
     [pressed_key]
 
+let rec print_keys_list = function
+| [] -> ()
+| [last] -> print_string last
+| first :: rest -> print_string first; print_string " + "; print_keys_list rest;
+flush stdout
+
+let print_current_state lst = 
+  print_string "["; print_keys_list lst; print_string "]\n"
+
 let handle_event grammar pressed_keys =
   let event = Sdl.Event.create () in
     match Sdl.wait_event (Some event) with
@@ -28,14 +37,15 @@ let handle_event grammar pressed_keys =
             )
             else 
               let current_state = update_state pressed_keys keyname grammar in
-              let (found, description) = Grammar.get_description_by_key grammar current_state in
+              let (found, description) = Grammar.get_description_by_key grammar current_state [] in
               if found then (
-                Grammar.print_current_state current_state;
-                print_string (description ^ "\n\n");
-              ) else if Grammar.key_exists current_state grammar then ( (*final state and starting a new one*)
-                Grammar.print_current_state current_state;
-                let (_, description) = Grammar.get_description_by_key grammar [keyname] in
-                print_string (description ^ "\n\n");
+                print_current_state current_state;
+                Grammar.print_descriptions description;
+                (*print_string (description ^ "\n\n");*)
+               ) else if Grammar.key_exists current_state grammar then ( (*final state and starting a new one*)
+                print_current_state current_state;
+                let (_, description) = Grammar.get_description_by_key grammar [keyname] [] in
+                Grammar.print_descriptions description;
               ) else (
                 print_string ("[" ^ keyname ^ "]: key not found, state reset\n");
               );

@@ -27,7 +27,7 @@ let handle_event grammar pressed_keys =
         let event_type = Sdl.Event.get event Sdl.Event.typ in
         match Sdl.Event.enum event_type with
         | `Quit ->
-            print_string "Exit event received, closing the program."; flush stdout;
+            print_string "Window closed, goodbye!\n"; flush stdout;
             (false, [])
         | `Key_down ->
             let keycode = Sdl.Event.get event Sdl.Event.keyboard_keycode in

@@ -53,24 +53,14 @@ let rec is_prefix_of_other_list prefix list =
 let key_exists key states =
   List.exists (fun (state_key, _) -> is_prefix_of_other_list key state_key) states
 
-
-
-(*
-avoids defining a state that is at the same time a substate/subset of another state. i.e:
-  P+K = Power Strike
-  W+P+K = Ultra combo
-are incompatible
-*)
 let rec get_description_by_key grammar current_state found_descriptions = 
   match grammar, found_descriptions with
   | (key, description) :: tail, _ -> 
       if key = current_state then get_description_by_key tail current_state (found_descriptions @ [description]) else get_description_by_key tail current_state found_descriptions
   | [], []  -> 
-      (false, []) 
+      (false, current_state) (* returns the same description as the key name *)
   | [], _  -> 
       (true, found_descriptions) 
-
-
 
 
 let print_key_and_description lst = 

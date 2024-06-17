@@ -12,6 +12,14 @@ let get_grammar_filename () =
   | _ -> print_string "Error\n"; exit 1
 
 
+let confirm_only_1_argument () = 
+  try
+    let _ = Sys.argv.(2) in 
+    print_string "Only 1 argument allowed. Usage: ./ft_ality grammar_file\n";
+    exit 1
+  with
+  | _ -> ()
+
 let initialize_sdl () =
   match Sdl.init Sdl.Init.video with
   | Error (`Msg e) ->
@@ -29,7 +37,8 @@ let initialize_window () =
 let () =
   initialize_sdl ();
   let grammar_filename = get_grammar_filename () in
-  let grammar = Grammar.grammar_file_to_list grammar_filename in
+    let _ = confirm_only_1_argument () in 
+      let grammar = Grammar.grammar_file_to_list grammar_filename in
   Grammar.validate_grammar grammar;
   Grammar.print_grammar grammar;
   let window = initialize_window () in

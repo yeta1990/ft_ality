@@ -17,7 +17,7 @@ let validate_key_combination grammar =
 
 let validate_grammar_keys grammar = 
     let results  = List.map validate_key_combination grammar in
-      if List.for_all (fun res -> res == `Ok) results then true else (Sdl.log "Bad key provided in file"; false)
+      if List.for_all (fun res -> res == `Ok) results then true else (print_string "Bad key provided in file\n"; flush stdout; false)
 
 let rec is_substate sub lst =
   match sub, lst with
@@ -25,21 +25,6 @@ let rec is_substate sub lst =
  | _, [] -> false
  | x::xs, y::ys -> 
     (x = y && is_substate xs ys) || is_substate sub ys
-
-let rec validate_substates states =
-  match states with
-  | [] -> true
-  | ([_], _)::rest -> validate_substates rest (*not checking single keys*)
-  | (s1, _)::rest ->
-    let has_sublist =
-      List.exists (fun (s2, _) -> 
-        if ((s1 <> s2) && (is_substate s1 s2 || is_substate s2 s1)) then
-          (print_string "Defined substates of other states are not allowed: "; print_keys_list s1; print_string " has coincidences with "; print_keys_list s2; print_string "\n";
-          true)
-        else false
-      ) rest
-      in
-        if has_sublist then false else validate_substates rest
 
 let validate_grammar grammar = 
   if not (validate_grammar_keys grammar) then exit 1
@@ -77,7 +62,7 @@ let split_keys_and_descriptions s =
         let key_description = String.sub s (index + len - 1) (String.length s - index - len + 1) in
         let keys = String.split_on_char '+' keys_raw in 
           (keys, String.trim key_description)
-      with Not_found -> Sdl.log "Bad format provided in file. \"key = value\" is required, i.e.: P = Punch or P + K = Combo!!!"; exit 1
+      with Not_found -> print_string "Bad format provided in file. \"key = value\" is required, i.e.: P = Punch or P + K = Combo!!!\n"; flush stdout; exit 1
 
 let grammar_file_to_list file_name = 
   let ic =

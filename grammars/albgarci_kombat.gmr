@@ -6,7 +6,6 @@ C = Crouch
 W = Up
 S = Down
 A = LEFT
-a = left
 D = Right
 H+S = Combo loko
 H+H+S = Combo loko
